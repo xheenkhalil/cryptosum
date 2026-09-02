@@ -17,13 +17,16 @@ func main() {
 
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "host=localhost user=cryptosum password=password dbname=cryptosum port=5433 sslmode=disable"
+		dsn = "host=127.0.0.1 user=postgres password=password dbname=postgres port=15432 sslmode=disable"
 	}
 	db.ConnectDB(dsn)
 
 	app := fiber.New()
 	app.Use(logger.New())
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok", "service": "api"})

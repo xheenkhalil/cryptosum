@@ -13,14 +13,17 @@ export default function Dashboard() {
   const { disconnect } = useDisconnect();
   const portfolioBalance = useStore((state) => state.portfolioBalance);
   const notifications = useStore((state) => state.notifications);
+  const addNotification = useStore((state) => state.addNotification);
   
   const [tradeSymbol, setTradeSymbol] = useState('SOL');
   const [tradeAmount, setTradeAmount] = useState('100');
+  const [isTrading, setIsTrading] = useState(false);
   
   // Initialize WebSocket connection
   useWebSocket();
 
   const handleTrade = async () => {
+    setIsTrading(true);
     try {
       const res = await fetch('http://localhost:8080/api/trade/execute', {
         method: 'POST',
@@ -33,8 +36,21 @@ export default function Dashboard() {
         }),
       });
       if (!res.ok) throw new Error('Trade API failed');
+      
+      addNotification({
+        title: 'Trade Queued',
+        message: 'Your order was sent to the execution engine.',
+        type: 'info'
+      });
     } catch (err) {
       console.error(err);
+      addNotification({
+        title: 'Connection Error',
+        message: 'Failed to reach the API server. Check your connection.',
+        type: 'error'
+      });
+    } finally {
+      setIsTrading(false);
     }
   };
 
@@ -146,9 +162,17 @@ export default function Dashboard() {
               </div>
               <button 
                 onClick={handleTrade}
-                className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-bold rounded mt-4"
+                disabled={isTrading}
+                className={`w-full py-3 font-bold rounded mt-4 flex items-center justify-center gap-2 transition ${isTrading ? 'bg-emerald-500/50 cursor-not-allowed text-zinc-800' : 'bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-zinc-950 shadow-[0_0_15px_rgba(16,185,129,0.3)]'}`}
               >
-                Execute Buy
+                {isTrading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-zinc-800 border-t-transparent rounded-full animate-spin" />
+                    Executing...
+                  </>
+                ) : (
+                  'Execute Buy'
+                )}
               </button>
             </div>
           </div>
