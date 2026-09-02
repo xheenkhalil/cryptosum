@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 
+	"github.com/cryptosum/backend/internal/config"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -22,13 +22,8 @@ type TradeRequest struct {
 }
 
 func ConnectRedis() {
-	redisUrl := os.Getenv("REDIS_URL")
-	if redisUrl == "" {
-		redisUrl = "localhost:6379"
-	}
-
 	Rdb = redis.NewClient(&redis.Options{
-		Addr: redisUrl,
+		Addr: config.AppConfig.RedisURL,
 	})
 
 	_, err := Rdb.Ping(ctx).Result()

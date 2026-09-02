@@ -2,30 +2,29 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/cryptosum/backend/internal/api"
+	"github.com/cryptosum/backend/internal/config"
 	"github.com/cryptosum/backend/internal/db"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	_ = godotenv.Load()
+	// 1. Load strict configuration
+	config.LoadConfig()
 
-	dsn := os.Getenv("DATABASE_URL")
-	if dsn == "" {
-		dsn = "host=127.0.0.1 user=postgres password=password dbname=postgres port=15432 sslmode=disable"
-	}
-	db.ConnectDB(dsn)
+	// 2. Initialize Database
+	db.ConnectDB(config.AppConfig.DatabaseURL)
 
 	app := fiber.New()
 	app.Use(logger.New())
+	
+	// Secure CORS using config
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowOrigins: config.AppConfig.AllowedOrigins,
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
 	app.Get("/health", func(c *fiber.Ctx) error {

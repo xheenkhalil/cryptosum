@@ -4,17 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 
+	"github.com/cryptosum/backend/internal/config"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 )
 
 func SetupAIRoutes(app *fiber.App) {
-	aiGroup := app.Group("/api/ai")
+	api := app.Group("/api/ai")
 
-	aiGroup.Post("/analyze", func(c *fiber.Ctx) error {
+	api.Post("/analyze", func(c *fiber.Ctx) error {
 		var payload struct {
 			Symbol    string  `json:"symbol"`
 			Price     float64 `json:"price"`
@@ -27,7 +27,7 @@ func SetupAIRoutes(app *fiber.App) {
 		}
 
 		ctx := context.Background()
-		apiKey := os.Getenv("GEMINI_API_KEY")
+		apiKey := config.AppConfig.GeminiAPIKey
 		if apiKey == "" {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "AI not configured"})
 		}

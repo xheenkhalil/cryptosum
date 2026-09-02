@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"sync"
 
+	"github.com/cryptosum/backend/internal/config"
 	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
@@ -62,12 +62,8 @@ func SetupWebSockets(app *fiber.App) {
 
 	// MVP: Listen to all trade results and broadcast to all connected clients
 	go func() {
-		redisUrl := os.Getenv("REDIS_URL")
-		if redisUrl == "" {
-			redisUrl = "localhost:6379"
-		}
 		rdb := redis.NewClient(&redis.Options{
-			Addr: redisUrl,
+			Addr: config.AppConfig.RedisURL,
 		})
 		
 		pubsub := rdb.PSubscribe(context.Background(), "trade_results:*")
