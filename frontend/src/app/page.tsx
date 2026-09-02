@@ -1,16 +1,14 @@
 'use client';
 
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { injected } from 'wagmi/connectors';
+import { useAccount } from 'wagmi';
 import { useStore } from '../store/useStore';
 import { Activity, Wallet, BarChart2, Zap, Settings, Search, LayoutDashboard, Bell } from 'lucide-react';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { useState } from 'react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export default function Dashboard() {
   const { address, isConnected } = useAccount();
-  const { connect } = useConnect();
-  const { disconnect } = useDisconnect();
   const portfolioBalance = useStore((state) => state.portfolioBalance);
   const notifications = useStore((state) => state.notifications);
   const addNotification = useStore((state) => state.addNotification);
@@ -72,26 +70,14 @@ export default function Dashboard() {
         </nav>
 
         <div className="mt-auto">
-          {isConnected ? (
-            <div className="p-3 bg-zinc-800 rounded-lg flex flex-col gap-2">
-              <div className="text-xs text-zinc-400">Connected Wallet</div>
-              <div className="font-mono text-sm truncate">{address}</div>
-              <button 
-                onClick={() => disconnect()}
-                className="w-full py-1.5 mt-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded text-sm transition"
-              >
-                Disconnect
-              </button>
-            </div>
-          ) : (
-            <button 
-              onClick={() => connect({ connector: injected() })}
-              className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-semibold rounded-lg flex items-center justify-center gap-2 transition"
-            >
-              <Wallet className="w-4 h-4" />
-              Connect Wallet
-            </button>
-          )}
+          <ConnectButton 
+            chainStatus="icon" 
+            showBalance={false} 
+            accountStatus={{
+              smallScreen: 'avatar',
+              largeScreen: 'full',
+            }}
+          />
         </div>
       </div>
 

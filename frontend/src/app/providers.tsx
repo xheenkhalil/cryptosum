@@ -1,18 +1,21 @@
 'use client';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider, createConfig, http } from 'wagmi';
-import { mainnet, bsc, solana } from 'wagmi/chains';
+import '@rainbow-me/rainbowkit/styles.css';
+import { getDefaultConfig, RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
+import { WagmiProvider } from 'wagmi';
+import { mainnet, bsc, polygon, optimism, arbitrum, base } from 'wagmi/chains';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { ReactNode, useState } from 'react';
 
-// Using mock config for MVP to prevent requirement of WalletConnect Project ID right now
-export const config = createConfig({
-  chains: [mainnet, bsc],
-  transports: {
-    [mainnet.id]: http(),
-    [bsc.id]: http(),
-  },
-})
+// Using a public default for the MVP, but ideally loaded from env
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '1deccdc4e8c16dcb4dafb4b50c042971';
+
+export const config = getDefaultConfig({
+  appName: 'Cryptosum',
+  projectId: projectId,
+  chains: [mainnet, bsc, polygon, optimism, arbitrum, base],
+  ssr: true,
+});
 
 export default function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
@@ -20,7 +23,9 @@ export default function Providers({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        {children}
+        <RainbowKitProvider theme={darkTheme()}>
+          {children}
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
