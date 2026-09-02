@@ -17,7 +17,7 @@ func main() {
 
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "host=localhost user=cryptosum password=password dbname=cryptosum port=5432 sslmode=disable"
+		dsn = "host=localhost user=cryptosum password=password dbname=cryptosum port=5433 sslmode=disable"
 	}
 	db.ConnectDB(dsn)
 
